@@ -6,6 +6,7 @@ const {
   AudioPlayerStatus,
   getVoiceConnection,
 } = require("@discordjs/voice");
+const http = require('http');
 const ytdl = require("ytdl-core");
 require('dotenv').config();
 
@@ -20,6 +21,15 @@ const client = new Client({
 
 const player = createAudioPlayer();
 const queue = [];
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Bot Discord en cours d\'exécution\n');
+});
+
+server.listen(3000, () => {
+  console.log('Serveur HTTP en écoute sur le port 3000');
+});
 
 client.on("ready", () => {
   console.log(`✅ Connecté en tant que ${client.user.tag}`);
@@ -82,6 +92,31 @@ client.on("messageCreate", (message) => {
       message.reply("Passage à la chanson suivante.");
     } else {
       message.reply("Aucune lecture en cours.");
+    }
+  }
+});
+
+client.on("messageCreate", (message) => {
+  if (message.content === "!queue") {
+    if (queue.length === 0) {
+      message.reply("La file d'attente est vide.");
+    } else {
+      const queueMessage = queue
+        .map((url, index) => `${index + 1}. ${url}`)
+        .join("\n");
+      message.reply(`File d'attente:\n${queueMessage}`);
+    }
+  }
+});
+
+client.on("messageCreate", (message) => {
+  if (message.content === "!nowplaying") {
+    if (player.state.status === AudioPlayerStatus.Playing) {
+      const info = ytdl.getInfo(url);
+      const currentTitle = info.videoDetails.title;
+      message.reply(`Lecture en cours: ${currentTitle}`);
+    } else {
+      message.reply("Aucune lecture en cours bouffon.");
     }
   }
 });
