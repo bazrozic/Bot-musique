@@ -7,6 +7,7 @@ const {
   getVoiceConnection,
 } = require("@discordjs/voice");
 const ytdl = require("ytdl-core");
+require('dotenv').config();
 
 const client = new Client({
   intents: [
@@ -157,5 +158,5 @@ async function playNextSong(connection, message) {
 }
 
 client.login(
-  "MTMzNzE0ODM2Njc2ODgzNjYwOQ.Gu2aLJ.TdMwWWDFw6TTwH5HaFikYP0mPKVcfst8YuuNo0"
+  process.env.BOT_TOKEN
 );
